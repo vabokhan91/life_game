@@ -1,0 +1,34 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Game of life</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript" src="js/gamescript.js"></script>
+
+
+</head>
+<body onload="draw();">
+<div id="grid_inputs" class="inline">
+<canvas id="game_grid" width="300" height="300"></canvas>
+<div style="display:none;">
+    <img id="image" src="img/no-translate-detected_318-41063.jpg" width="30" height="30">
+</div>
+
+<form action="index.html" id="preconditions_form" >
+    Size of environment field :<br>
+    <input type="text" name="size_of_grid" value="">
+    <br>
+    Number of iterations :<br>
+    <input type="text" name="num_of_iterations" value="">
+    <br>
+    Density :<br>
+    <input type="text" name="density" value="">
+    <br>
+    Time period  :<br>
+    <input type="text" name="time_period" value="">
+    <br><br>
+    <input type="submit" value="Submit">
+</form>
+</div>
+</body>
+</html>
