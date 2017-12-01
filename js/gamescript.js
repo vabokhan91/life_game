@@ -3,7 +3,8 @@ window.onload = function () {
     var ctx = c.getContext('2d');
 
     class Predator {
-        constructor(image, x, y) {
+        constructor(image, x, y, lifetime) {
+            this.lifetime = lifetime;
             this.image = image;
             this.x = x;
             this.y = y;
@@ -34,21 +35,34 @@ window.onload = function () {
             }
         }
 
-        doLogic(entities){
+        doLogic(entities) {
             var arrayLength = entities.length;
-            for(var i = 0; i < arrayLength; i++) {
-                if(this.x === entities[i].x && this.y === entities[i].y && this.constructor.name !== entities[i].constructor.name) {
+            for (var i = 0; i < arrayLength; i++) {
+                if (this.x === entities[i].x && this.y === entities[i].y && this.constructor.name !== entities[i].constructor.name) {
                     entities.splice(i, 1);
                     arrayLength -= 1;
-                }else {
+                    this.lifetime += 5;
+                } else {
                     j++;
                 }
             }
         }
+
+        reproduce(entities) {
+            if (this.lifetime <= 0) {
+                var index = entities.indexOf(this);
+                entities.splice(index, 1);
+            } else {
+                this.lifetime -= 1;
+            }
+
+        }
+
     }
 
     class Victim {
-        constructor(image, x, y) {
+        constructor(image, x, y, lifetime) {
+            this.lifetime = lifetime;
             this.image = image;
             this.x = x;
             this.y = y;
@@ -67,19 +81,10 @@ window.onload = function () {
                     if (entities[i].x === newCoordinates.x && entities[i].y === newCoordinates.y) {
                         newCoordinates = chooseNextStep(this.x, this.y);
                         i = 0;
-                        /*if(this.constructor.name !== entities[i].constructor.name) {
-                            var position = entities.indexOf(this);
-                            entities.splice(position, 1);
-                            entitiesLength -= 1;
-                        }else {
-                            newCoordinates = chooseNextStep(this.x, this.y);
-                            i = 0;
-                        }*/
                     } else {
                         i++;
                     }
                 }
-
                 isCellClosed = false;
             }
             this.x = newCoordinates.x;
@@ -87,21 +92,21 @@ window.onload = function () {
 
         }
 
-        doLogic(entities){
-            var arrayLength = entities.length;
-            /*for(var i = 0; i < arrayLength - 1; i++) {
-                if(this.x === entities[i].x && this.y === entities[i].y && this.constructor.name !== entities[i].constructor.name) {
-                    entities.slice(i, 1);
-                    arrayLength -= 1;
-                }else {
-                    j++;
-                }
-            }*/
+        doLogic(entities) {
+        }
+
+        reproduce(entities) {
+            if (this.lifetime <= 0) {
+                var index = entities.indexOf(this);
+                entities.splice(index, 1);
+            } else {
+                this.lifetime -= 1;
+            }
+
         }
 
 
     }
-
 
 
     function game(width, height, density, times) {
@@ -117,19 +122,9 @@ window.onload = function () {
                 ctx.clearRect(entities[p].x, entities[p].y, 25, 25);
                 entities[p].move(entities);
                 entities[p].doLogic(entities);
+                entities[p].reproduce(entities);
                 entities[p].draw(ctx);
             }
-            /*for (var j = 0; j < entities.length; j++) {
-
-            }
-            for (var t = 0; t < entities.length; t++) {
-
-            }
-
-            for (var i = 0; i < entities.length; i++) {
-
-            }*/
-
             counter++;
             if (counter === times) {
                 clearInterval(interval);
@@ -213,7 +208,7 @@ window.onload = function () {
         if (entitiesLength > 0) {
             while (isCellClosed) {
                 for (var i = 0; i < entitiesLength; i++) {
-                    if (entities[i].x === coordinates.x || entities[i].y === coordinates.y) {
+                    if (entities[i].x === coordinates.x && entities[i].y === coordinates.y) {
                         coordinates = choosePosition(ctx);
                         i = 0;
                     }
@@ -232,12 +227,12 @@ window.onload = function () {
     }
 
     function addVictim(x, y) {
-        var victim = new Victim(document.getElementById('victim'), x, y, ctx);
+        var victim = new Victim(document.getElementById('victim'), x, y, 50);
         return victim;
     }
 
     function addPredator(x, y) {
-        var predator = new Predator(document.getElementById('predator'), x, y);
+        var predator = new Predator(document.getElementById('predator'), x, y, 10);
         return predator;
     }
 
@@ -263,5 +258,5 @@ window.onload = function () {
         return coordinate;
     }
 
-    game(300, 300, 0.9, 50);
+    game(300, 300, 0.4, 50);
 };
