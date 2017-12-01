@@ -1,4 +1,7 @@
 window.onload = function () {
+    var c = document.getElementById('game_grid');
+    var ctx = c.getContext('2d');
+
     class Predator {
         constructor(image, x, y) {
             this.image = image;
@@ -6,26 +9,40 @@ window.onload = function () {
             this.y = y;
         }
 
-        draw(ctx){
-           ctx.drawImage(this.image, this.x, this.y, ctx.cellWidth, ctx.cellHeight);
+        draw(ctx) {
+            ctx.drawImage(this.image, this.x, this.y, ctx.cellWidth, ctx.cellHeight);
         }
 
-        move(entities){
+        move(entities) {
             var entitiesLength = entities.length;
             var newCoordinates = chooseNextStep(this.x, this.y);
             var isCellClosed = true;
             while (isCellClosed) {
-                for (var i = 0; i < entitiesLength; ) {
-                    if (entities[i].x === newCoordinates.x && entities[i].y === newCoordinates.y) {
+                for (var i = 0; i < entitiesLength;) {
+                    if (entities[i].x === newCoordinates.x && entities[i].y === newCoordinates.y && this.constructor.name === entities[i].constructor.name) {
                         newCoordinates = chooseNextStep(this.x, this.y);
                         i = 0;
-                    }else {
+                        /*entities.splice(i, 1);
+                        entitiesLength -= 1;*/
+                    } else {
                         i++;
                     }
                 }
                 this.x = newCoordinates.x;
                 this.y = newCoordinates.y;
                 isCellClosed = false;
+            }
+        }
+
+        doLogic(entities){
+            var arrayLength = entities.length;
+            for(var i = 0; i < arrayLength; i++) {
+                if(this.x === entities[i].x && this.y === entities[i].y && this.constructor.name !== entities[i].constructor.name) {
+                    entities.splice(i, 1);
+                    arrayLength -= 1;
+                }else {
+                    j++;
+                }
             }
         }
     }
@@ -37,35 +54,55 @@ window.onload = function () {
             this.y = y;
         }
 
-        draw(ctx){
+        draw(ctx) {
             ctx.drawImage(this.image, this.x, this.y, ctx.cellWidth, ctx.cellHeight);
         }
 
-        move(entities){
+        move(entities) {
             var entitiesLength = entities.length;
             var newCoordinates = chooseNextStep(this.x, this.y);
             var isCellClosed = true;
             while (isCellClosed) {
-                for (var i = 0; i < entitiesLength; ) {
+                for (var i = 0; i < entitiesLength;) {
                     if (entities[i].x === newCoordinates.x && entities[i].y === newCoordinates.y) {
                         newCoordinates = chooseNextStep(this.x, this.y);
                         i = 0;
-                    }else {
+                        /*if(this.constructor.name !== entities[i].constructor.name) {
+                            var position = entities.indexOf(this);
+                            entities.splice(position, 1);
+                            entitiesLength -= 1;
+                        }else {
+                            newCoordinates = chooseNextStep(this.x, this.y);
+                            i = 0;
+                        }*/
+                    } else {
                         i++;
                     }
                 }
-                this.x = newCoordinates.x;
-                this.y = newCoordinates.y;
+
                 isCellClosed = false;
             }
+            this.x = newCoordinates.x;
+            this.y = newCoordinates.y;
 
+        }
+
+        doLogic(entities){
+            var arrayLength = entities.length;
+            /*for(var i = 0; i < arrayLength - 1; i++) {
+                if(this.x === entities[i].x && this.y === entities[i].y && this.constructor.name !== entities[i].constructor.name) {
+                    entities.slice(i, 1);
+                    arrayLength -= 1;
+                }else {
+                    j++;
+                }
+            }*/
         }
 
 
     }
 
-    var c = document.getElementById('game_grid');
-    var ctx = c.getContext('2d');
+
 
     function game(width, height, density, times) {
         var entities = [];
@@ -76,53 +113,54 @@ window.onload = function () {
 
         interval = window.setInterval(function () {
             var entLength = entities.length;
-            for(var p = 0; p < entLength; p++) {
+            for (var p = 0; p < entities.length; p++) {
                 ctx.clearRect(entities[p].x, entities[p].y, 25, 25);
+                entities[p].move(entities);
+                entities[p].doLogic(entities);
+                entities[p].draw(ctx);
             }
-            for (var j = 0; j < entLength; j++) {
-                entities[j].move(entities);
+            /*for (var j = 0; j < entities.length; j++) {
+
             }
-            for (var i = 0; i < entLength; i++) {
-                entities[i].draw(ctx);
+            for (var t = 0; t < entities.length; t++) {
+
             }
+
+            for (var i = 0; i < entities.length; i++) {
+
+            }*/
 
             counter++;
             if (counter === times) {
                 clearInterval(interval);
             }
-        }, 5000)
-    }
-
-    function makeMove(entities) {
-        var entityLength = entities.length;
-
-
+        }, 500)
     }
 
     function chooseNextStep(x, y) {
         var nextX = getRandomArbitrary(x - 30, x + 30);
-        if(nextX < 0 || nextX > 270) {
+        if (nextX < 0 || nextX > 270) {
             nextX = x;
-        } else if(nextX > x){
+        } else if (nextX > x) {
             while (nextX > 0 && !(Math.floor(nextX % 30) === 0)) {
                 nextX += 1;
             }
             nextX = Math.floor(nextX) + 1;
-        }else if(nextX < x){
+        } else if (nextX < x) {
             while (nextX > 0 && !(Math.floor(nextX % 30) === 0)) {
                 nextX -= 1;
             }
             nextX = Math.floor(nextX) + 1;
         }
         var nextY = getRandomArbitrary(y - 30, y + 30);
-        if(nextY < 0 || nextY > 270) {
+        if (nextY < 0 || nextY > 270) {
             nextY = y;
-        } else if(nextY < y){
+        } else if (nextY < y) {
             while (nextY > 0 && !(Math.floor(nextY % 30) === 0)) {
                 nextY -= 1;
             }
             nextY = Math.floor(nextY) + 1;
-        }else if(nextY > y){
+        } else if (nextY > y) {
             while (nextY > 0 && !(Math.floor(nextY % 30) === 0)) {
                 nextY += 1;
             }
@@ -225,5 +263,5 @@ window.onload = function () {
         return coordinate;
     }
 
-    game(300, 300, 0.9, 10);
+    game(300, 300, 0.9, 50);
 };
